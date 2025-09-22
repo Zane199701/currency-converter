@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>印尼卢比换算人民币</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .converter-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            box-sizing: border-box;
+        }
+        h2 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        .input-group, .output-group {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        #amount-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            border: none;
+            outline: none;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+        #amount-input::placeholder {
+            color: #bbb;
+        }
+        .currency-label {
+            font-size: 14px;
+            color: #888;
+        }
+        .output-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #007bff;
+            word-break: break-all;
+            margin-top: 10px;
+            min-height: 44px;
+            line-height: 1.2;
+        }
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="converter-container">
+    <div class="input-group">
+        <h2 style="text-align: center;">印尼卢比 (IDR)</h2>
+        <input type="text" id="amount-input" placeholder="0" inputmode="decimal">
+    </div>
+
+    <div class="output-group">
+        <h2>人民币 (RMB)</h2>
+        <div id="result" class="output-value">0</div>
+    </div>
+
+    <div class="footer">
+        点点制作
+    </div>
+</div>
+
+<script>
+    const idrInput = document.getElementById('amount-input');
+    const rmbOutput = document.getElementById('result');
+    const rate = 0.04312 / 100; // 1 IDR = 0.0004312 CNY
+
+    // 格式化数字，每三位增加一个逗号
+    function formatNumber(num) {
+        if (typeof num !== 'number' || isNaN(num)) {
+            return '0';
+        }
+        // 四舍五入到3位小数，然后转换成字符串
+        let parts = num.toFixed(3).toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join('.');
+    }
+
+    // 实时转换并更新输出
+    idrInput.addEventListener('input', () => {
+        // 移除所有逗号并解析为浮点数
+        let amount = parseFloat(idrInput.value.replace(/,/g, ''));
+        if (isNaN(amount) || amount === 0) {
+            rmbOutput.textContent = '0';
+            return;
+        }
+        // 计算转换结果
+        let result = amount * rate;
+        // 格式化并显示
+        rmbOutput.textContent = formatNumber(result);
+    });
+
+    // 为输入框添加格式化功能（可选，但体验更好）
+    idrInput.addEventListener('blur', (e) => {
+        let value = parseFloat(e.target.value.replace(/,/g, ''));
+        if (!isNaN(value)) {
+            e.target.value = value.toLocaleString('en-US');
+        }
+    });
+
+    idrInput.addEventListener('focus', (e) => {
+        // 聚焦时移除格式，方便用户输入
+        e.target.value = e.target.value.replace(/,/g, '');
+    });
+
+</script>
+
+</body>
+</html>
