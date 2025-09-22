@@ -10,14 +10,14 @@
             background-color: #f0f2f5;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; /* 顶部对齐，为键盘留出空间 */
             min-height: 100vh;
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        .container {
+        .converter-container {
             width: 100%;
             max-width: 500px;
             background-color: #fff;
@@ -38,6 +38,7 @@
             margin-bottom: 24px;
         }
 
+        /* 第一部分: 转换方向 */
         .radio-group {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -53,6 +54,7 @@
             padding: 12px;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
+            font-size: 14px;
         }
 
         .radio-item:hover {
@@ -89,6 +91,7 @@
             transform: translate(-50%, -50%);
         }
 
+        /* 第二部分: 金额输入 */
         .input-group {
             display: flex;
             align-items: center;
@@ -114,26 +117,15 @@
             text-align: right;
             color: #333;
             padding: 0;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
         }
 
-        .convert-button {
-            width: 100%;
-            padding: 16px;
-            background-color: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
-            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        #amount-input::placeholder {
+            color: #bbb;
         }
 
-        .convert-button:hover {
-            background-color: #0056b3;
-        }
-
+        /* 第三部分: 转换结果 */
         .result-group {
             text-align: center;
         }
@@ -150,13 +142,13 @@
             color: #28a745;
             word-break: break-all;
             margin-top: 8px;
-            transition: color 0.3s ease;
+            min-height: 44px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="converter-container">
     <div class="section">
         <h2>转换方向</h2>
         <div class="radio-group">
@@ -191,20 +183,14 @@
         <h2>金额</h2>
         <div class="input-group">
             <span class="currency-label" id="input-currency-label">人民币</span>
-            <input type="text" id="amount-input" value="" placeholder="0">
+            <input type="text" id="amount-input" value="" placeholder="0" inputmode="decimal">
         </div>
-    </div>
-
-    <div class="section">
-        <button class="convert-button" onclick="convertCurrency()">转换</button>
     </div>
 
     <div class="section">
         <h2>转换结果</h2>
         <div class="result-group">
-            <div id="result-label-group">
-                <span id="result-label">美元</span>
-            </div>
+            <span id="result-label">美元</span>
             <div id="result">0</div>
         </div>
     </div>
@@ -247,19 +233,22 @@
 
     // 格式化数字，每三位加逗号
     function formatNumber(num) {
-        if (typeof num === 'string' && num.trim() === '') return '';
-        if (isNaN(num)) return num;
-        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        if (typeof num !== 'number' || isNaN(num)) {
+            return '0';
+        }
+        let parts = num.toFixed(2).toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join('.');
     }
 
-    // 转换货币函数
+    // 实时转换并更新输出
     function convertCurrency() {
         const selectedValue = document.querySelector('input[name="conversion"]:checked').value;
         const inputValue = amountInput.value.replace(/,/g, '');
         let amount = parseFloat(inputValue);
 
-        if (isNaN(amount)) {
-            resultDiv.textContent = '无效金额';
+        if (isNaN(amount) || amount === 0) {
+            resultDiv.textContent = '0';
             return;
         }
 
@@ -287,31 +276,26 @@
                 result = 0;
         }
         
-        let formattedResult;
-        if (result >= 1000) {
-            formattedResult = formatNumber(result.toFixed(2));
-        } else {
-            formattedResult = result.toFixed(2);
-        }
-        resultDiv.textContent = formattedResult;
+        resultDiv.textContent = formatNumber(result);
     }
 
     // 输入框格式化
     amountInput.addEventListener('input', (e) => {
         const value = e.target.value.replace(/,/g, '');
-        if (value === '') {
+        const formattedValue = parseFloat(value).toLocaleString('en-US');
+        if (value === '' || isNaN(parseFloat(value))) {
             e.target.value = '';
-            return;
+        } else {
+            e.target.value = formattedValue;
         }
-        const formattedValue = formatNumber(value);
-        e.target.value = formattedValue;
+        convertCurrency();
     });
 
     // 监听单选框变化
     document.querySelectorAll('input[name="conversion"]').forEach(radio => {
         radio.addEventListener('change', () => {
             updateLabels();
-            // 重置结果
+            // 重置输入和结果
             amountInput.value = '';
             resultDiv.textContent = '0';
         });
