@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>货币转换器</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+        }
+
+        h2 {
+            font-size: 20px;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .radio-item:hover {
+            border-color: #007bff;
+            background-color: #e6f0ff;
+        }
+
+        input[type="radio"] {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #aaa;
+            border-radius: 50%;
+            margin-right: 12px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        input[type="radio"]:checked {
+            border-color: #007bff;
+        }
+
+        input[type="radio"]:checked::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: #007bff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .currency-label {
+            font-size: 16px;
+            color: #555;
+            font-weight: 500;
+            margin-right: 12px;
+            min-width: 60px;
+        }
+
+        #amount-input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            background-color: transparent;
+            font-size: 20px;
+            text-align: right;
+            color: #333;
+            padding: 0;
+        }
+
+        .convert-button {
+            width: 100%;
+            padding: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+        }
+
+        .convert-button:hover {
+            background-color: #0056b3;
+        }
+
+        .result-group {
+            text-align: center;
+        }
+
+        #result-label {
+            font-size: 16px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        #result {
+            font-size: 32px;
+            font-weight: bold;
+            color: #28a745;
+            word-break: break-all;
+            margin-top: 8px;
+            transition: color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="section">
+        <h2>转换方向</h2>
+        <div class="radio-group">
+            <label class="radio-item">
+                <input type="radio" name="conversion" value="CNY_to_USD" checked>
+                <span>人民币 -> 美元</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="conversion" value="CNY_to_VND">
+                <span>人民币 -> 越南盾</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="conversion" value="VND_to_USD">
+                <span>越南盾 -> 美元</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="conversion" value="VND_to_CNY">
+                <span>越南盾 -> 人民币</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="conversion" value="USD_to_CNY">
+                <span>美元 -> 人民币</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="conversion" value="USD_to_VND">
+                <span>美元 -> 越南盾</span>
+            </label>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>金额</h2>
+        <div class="input-group">
+            <span class="currency-label" id="input-currency-label">人民币</span>
+            <input type="text" id="amount-input" value="" placeholder="0">
+        </div>
+    </div>
+
+    <div class="section">
+        <button class="convert-button" onclick="convertCurrency()">转换</button>
+    </div>
+
+    <div class="section">
+        <h2>转换结果</h2>
+        <div class="result-group">
+            <div id="result-label-group">
+                <span id="result-label">美元</span>
+            </div>
+            <div id="result">0</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 汇率常量
+    const rates = {
+        CNY_to_VND: 3702.332,
+        USD_to_CNY: 7.13
+    };
+
+    // 其他汇率根据已知汇率计算
+    rates.VND_to_CNY = 1 / rates.CNY_to_VND;
+    rates.CNY_to_USD = 1 / rates.USD_to_CNY;
+    rates.USD_to_VND = rates.CNY_to_VND * rates.USD_to_CNY;
+    rates.VND_to_USD = 1 / rates.USD_to_VND;
+
+    const conversionMap = {
+        CNY_to_USD: { from: '人民币', to: '美元' },
+        CNY_to_VND: { from: '人民币', to: '越南盾' },
+        VND_to_USD: { from: '越南盾', to: '美元' },
+        VND_to_CNY: { from: '越南盾', to: '人民币' },
+        USD_to_CNY: { from: '美元', to: '人民币' },
+        USD_to_VND: { from: '美元', to: '越南盾' }
+    };
+
+    const amountInput = document.getElementById('amount-input');
+    const inputCurrencyLabel = document.getElementById('input-currency-label');
+    const resultLabel = document.getElementById('result-label');
+    const resultDiv = document.getElementById('result');
+
+    // 更新输入框和结果标签
+    function updateLabels() {
+        const selectedValue = document.querySelector('input[name="conversion"]:checked').value;
+        const { from, to } = conversionMap[selectedValue];
+        inputCurrencyLabel.textContent = from;
+        resultLabel.textContent = to;
+    }
+
+    // 格式化数字，每三位加逗号
+    function formatNumber(num) {
+        if (typeof num === 'string' && num.trim() === '') return '';
+        if (isNaN(num)) return num;
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    // 转换货币函数
+    function convertCurrency() {
+        const selectedValue = document.querySelector('input[name="conversion"]:checked').value;
+        const inputValue = amountInput.value.replace(/,/g, '');
+        let amount = parseFloat(inputValue);
+
+        if (isNaN(amount)) {
+            resultDiv.textContent = '无效金额';
+            return;
+        }
+
+        let result;
+        switch (selectedValue) {
+            case 'CNY_to_USD':
+                result = amount * rates.CNY_to_USD;
+                break;
+            case 'CNY_to_VND':
+                result = amount * rates.CNY_to_VND;
+                break;
+            case 'VND_to_USD':
+                result = amount * rates.VND_to_USD;
+                break;
+            case 'VND_to_CNY':
+                result = amount * rates.VND_to_CNY;
+                break;
+            case 'USD_to_CNY':
+                result = amount * rates.USD_to_CNY;
+                break;
+            case 'USD_to_VND':
+                result = amount * rates.USD_to_VND;
+                break;
+            default:
+                result = 0;
+        }
+        
+        let formattedResult;
+        if (result >= 1000) {
+            formattedResult = formatNumber(result.toFixed(2));
+        } else {
+            formattedResult = result.toFixed(2);
+        }
+        resultDiv.textContent = formattedResult;
+    }
+
+    // 输入框格式化
+    amountInput.addEventListener('input', (e) => {
+        const value = e.target.value.replace(/,/g, '');
+        if (value === '') {
+            e.target.value = '';
+            return;
+        }
+        const formattedValue = formatNumber(value);
+        e.target.value = formattedValue;
+    });
+
+    // 监听单选框变化
+    document.querySelectorAll('input[name="conversion"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            updateLabels();
+            // 重置结果
+            amountInput.value = '';
+            resultDiv.textContent = '0';
+        });
+    });
+
+    // 页面加载时初始化
+    document.addEventListener('DOMContentLoaded', () => {
+        updateLabels();
+    });
+</script>
+
+</body>
+</html>
