@@ -23,7 +23,6 @@
             --font-family: 'Google Sans', 'Roboto', sans-serif;
         }
 
-        /* 新增: 禁用页面滑动 */
         html {
             height: 100%;
             overflow: hidden;
@@ -32,7 +31,6 @@
         body {
             margin: 0;
             padding: 20px;
-            padding-top: 0px;
             font-family: var(--font-family);
             background-color: var(--background-color);
             color: var(--text-color);
@@ -41,7 +39,6 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
-            /* 新增: 禁用页面滑动和触摸手势 */
             height: 100%;
             overflow: hidden;
             touch-action: none;
@@ -217,11 +214,90 @@
             height: 24px;
             stroke: #d93025;
         }
+
+        /* --- About Button --- */
+        .about-btn-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+
+        .about-btn {
+            width: 100%;
+            height: 48px;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--primary-color);
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .about-btn:hover {
+            background-color: #e8f0fe;
+        }
+        .about-btn:active {
+            background-color: #d2e3fc;
+        }
+
+        /* --- About Page (Hidden by default) --- */
+        .about-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--container-bg-color);
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+            box-sizing: border-box;
+            color: var(--text-color);
+            z-index: 10;
+        }
+
+        .about-page.active {
+            display: flex;
+        }
+
+        .about-content {
+            flex-grow: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+            text-align: justify;
+            font-size: 16px;
+        }
+
+        .about-content h2 {
+            font-weight: 500;
+            margin-top: 0;
+        }
+
+        .back-btn {
+            width: 100px;
+            height: 48px;
+            align-self: flex-start;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+            background-color: var(--hover-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .back-btn:hover {
+            background-color: #e0e2e6;
+        }
+        .back-btn:active {
+            background-color: var(--active-color);
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="converter-container">
+    <div class="converter-container" id="converter-page">
         
         <div class="conversion-direction">
             <select id="conversion-select" class="converter-select">
@@ -269,10 +345,27 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2.5l19 19M21.5 2.5l-19 19"/></svg>
             </button>
         </div>
+
+        <div class="about-btn-wrapper">
+            <button class="about-btn" id="about-btn">关于</button>
+        </div>
+    </div>
+
+    <div class="about-page" id="about-page">
+        <div class="about-content">
+            <h2>关于本应用</h2>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Donec sed odio dui. Praesent commodo cursus magna, vel scelerisque nisl consectetur et.</p>
+        </div>
+        <button class="back-btn" id="back-btn">返回</button>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const converterPage = document.getElementById('converter-page');
+            const aboutPage = document.getElementById('about-page');
+            const aboutBtn = document.getElementById('about-btn');
+            const backBtn = document.getElementById('back-btn');
             const amountDisplay = document.getElementById('amount-display');
             const resultDisplay = document.getElementById('result-display');
             const numpad = document.querySelector('.numpad');
@@ -284,14 +377,14 @@
 
             let currentAmount = '0';
             
-            // 虚拟汇率，用于演示
+            // 更新后的虚拟汇率
             const exchangeRates = {
                 'VND-USD': 0.000039,
                 'VND-CNY': 0.00028,
-                'CNY-VND': 3560.5,
+                'CNY-VND': 3702.332,
                 'CNY-USD': 0.138,
                 'USD-VND': 25450.0,
-                'USD-CNY': 7.25,
+                'USD-CNY': 7.13,
             };
 
             const currencyNames = {
@@ -324,33 +417,27 @@
                 const amount = parseFloat(currentAmount.replace(/,/g, '')) || 0;
                 let result = (amount * rate);
 
-                // 根据目标货币确定小数点位数
                 const toCurrency = conversionSelect.value.split('-')[1];
                 let decimalPlaces;
                 if (toCurrency === 'VND') {
-                    decimalPlaces = 0; // 越南盾通常不带小数
+                    decimalPlaces = 0;
                 } else {
-                    decimalPlaces = 2; // 美元和人民币保留两位小数
+                    decimalPlaces = 2;
                 }
 
                 result = result.toFixed(decimalPlaces);
                 resultDisplay.textContent = formatNumber(result.toString());
             }
 
+            // --- Event Listeners ---
             numpad.addEventListener('click', function(e) {
                 if (e.target.matches('.numpad-btn')) {
                     const value = e.target.dataset.value;
 
-                    if (!value) return; // If clicking the icon inside the clear button
-
-                    if (value === 'clear') {
-                        currentAmount = '0';
-                    } else if (currentAmount === '0' && value !== '000') {
+                    if (currentAmount === '0' && value !== '000') {
                         currentAmount = value;
-                    } else if (currentAmount !== '0') {
-                         if (currentAmount.length < 15) { // 限制最大长度
-                            currentAmount += value;
-                        }
+                    } else if (currentAmount !== '0' && currentAmount.length < 15) {
+                        currentAmount += value;
                     }
                     updateDisplay();
                 }
@@ -375,11 +462,17 @@
                 calculateResult();
             });
 
-            // Initial setup
-            updateLabels();
-            updateDisplay();
+            aboutBtn.addEventListener('click', function() {
+                converterPage.style.display = 'none';
+                aboutPage.classList.add('active');
+            });
 
-            // 新增: 阻止触摸移动和双击事件的默认行为，增强禁用效果
+            backBtn.addEventListener('click', function() {
+                aboutPage.classList.remove('active');
+                converterPage.style.display = 'flex';
+            });
+
+            // 阻止触摸移动和双击事件的默认行为，增强禁用效果
             document.addEventListener('touchmove', function (e) {
                 e.preventDefault();
             }, { passive: false });
@@ -387,6 +480,10 @@
             document.addEventListener('dblclick', function (e) {
                 e.preventDefault();
             }, { passive: false });
+
+            // Initial setup
+            updateLabels();
+            updateDisplay();
         });
     </script>
 </body>
