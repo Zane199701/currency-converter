@@ -30,13 +30,13 @@
 
         body {
             margin: 0;
-            padding: 50px 20px 20px;
+            padding: 20px;
             font-family: var(--font-family);
             background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
             justify-content: center;
-            align-items: flex-start; /* 改为顶部对齐 */
+            align-items: center; /* 居中对齐 */
             height: 100vh;
             box-sizing: border-box;
             touch-action: none;
@@ -377,7 +377,7 @@
 
             let currentAmount = '0';
             
-            // 修复后的虚拟汇率，使用精确的数学表达式
+            // 虚拟汇率，使用精确的数学表达式
             const exchangeRates = {
                 'VND-USD': 1 / 25450.0,
                 'VND-CNY': 1 / 3702.332,
@@ -435,23 +435,24 @@
                 if (e.target.matches('.numpad-btn')) {
                     const value = e.target.dataset.value;
                     const maxLength = 15;
-
-                    if (currentAmount === '0' && value !== '0') {
-                        // 清空状态下，任何非零数字都替换0
-                        currentAmount = value;
-                    } else if (currentAmount !== '0' && currentAmount.length < maxLength) {
-                        // 正常追加模式
+                    
+                    if (currentAmount === '0') {
+                        // 如果当前金额为0，则任何非0数字都直接替换它
+                        if (value !== '0' && value !== '000') {
+                            currentAmount = value;
+                        } else {
+                            // 如果按了0或000，保持为0
+                            currentAmount = '0';
+                        }
+                    } else if (currentAmount.length < maxLength) {
+                        // 如果当前金额不为0，则追加新数字
                         currentAmount += value;
-                    } else if (currentAmount === '0' && value === '000') {
-                        // 初始状态下按000，保持为0
-                        currentAmount = '0';
                     }
 
                     updateDisplay();
                 }
             });
             
-            // 修复清空按钮逻辑
             clearBtn.addEventListener('click', function() {
                 currentAmount = '0';
                 amountDisplay.textContent = '0';
