@@ -30,17 +30,15 @@
 
         body {
             margin: 0;
-            padding: 20px;
+            padding: 50px 20px 20px;
             font-family: var(--font-family);
             background-color: var(--background-color);
             color: var(--text-color);
             display: flex;
             justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            align-items: flex-start; /* 改为顶部对齐 */
+            height: 100vh;
             box-sizing: border-box;
-            height: 100%;
-            overflow: hidden;
             touch-action: none;
         }
 
@@ -453,9 +451,11 @@
                 }
             });
             
+            // 修复清空按钮逻辑
             clearBtn.addEventListener('click', function() {
                 currentAmount = '0';
-                updateDisplay();
+                amountDisplay.textContent = '0';
+                resultDisplay.textContent = '0.00';
             });
 
             backspaceBtn.addEventListener('click', function() {
