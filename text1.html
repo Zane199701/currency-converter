@@ -436,18 +436,17 @@
                     const value = e.target.dataset.value;
                     const maxLength = 15;
 
-                    // 修复后的逻辑
+                    // 优化后的逻辑
                     if (currentAmount === '0') {
-                        // 如果当前为0，且输入不是'0'或'000'，则替换
-                        if (value !== '0' && value !== '000') {
+                        // 如果输入为 '000'，则保持 '0'
+                        if (value === '000') {
+                            currentAmount = '0';
+                        } else {
+                            // 否则，用新值替换 '0'
                             currentAmount = value;
                         }
-                        // 如果输入为'0'或'000'，则保持为'0'，不做任何操作
-                    } else {
-                        // 如果当前不为0，且未达到最大长度，则追加
-                        if (currentAmount.length < maxLength) {
-                            currentAmount += value;
-                        }
+                    } else if (currentAmount.length < maxLength) {
+                        currentAmount += value;
                     }
 
                     updateDisplay();
