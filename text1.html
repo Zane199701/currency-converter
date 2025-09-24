@@ -162,12 +162,12 @@
         </div>
 
         <div class="section">
-            <p>金额</p>
+            <p id="amount-label">金额</p>
             <input type="text" id="amount" placeholder="0" readonly>
         </div>
 
         <div class="section">
-            <p>转换结果</p>
+            <p id="result-label">转换结果</p>
             <input type="text" id="result" placeholder="等待转换..." readonly>
         </div>
 
@@ -193,30 +193,46 @@
             const resultInput = document.getElementById('result');
             const conversionSelect = document.getElementById('conversion-select');
             const numpadButtons = document.querySelectorAll('.numpad-button');
+            const amountLabel = document.getElementById('amount-label');
+            const resultLabel = document.getElementById('result-label');
 
-            // Simple exchange rates (for demonstration purposes)
             const exchangeRates = {
-                'VND-USD': 0.000041,
-                'VND-CNY': 0.00029,
-                'CNY-VND': 3450,
-                'CNY-USD': 0.14,
-                'USD-VND': 24500,
-                'USD-CNY': 7.15
+                'VND-USD': { rate: 0.000041, fromSymbol: '₫', toSymbol: '$' },
+                'VND-CNY': { rate: 0.00029, fromSymbol: '₫', toSymbol: '¥' },
+                'CNY-VND': { rate: 3450, fromSymbol: '¥', toSymbol: '₫' },
+                'CNY-USD': { rate: 0.14, fromSymbol: '¥', toSymbol: '$' },
+                'USD-VND': { rate: 24500, fromSymbol: '$', toSymbol: '₫' },
+                'USD-CNY': { rate: 7.15, fromSymbol: '$', toSymbol: '¥' }
             };
 
+            function formatNumber(num) {
+                if (num === '') return '';
+                // Add commas for thousands separator
+                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            }
+
+            function updateLabels() {
+                const selectedConversion = conversionSelect.value;
+                const { fromSymbol, toSymbol } = exchangeRates[selectedConversion];
+                amountLabel.textContent = `金额 (${fromSymbol})`;
+                resultLabel.textContent = `转换结果 (${toSymbol})`;
+            }
+
             function convert() {
-                const amount = parseFloat(amountInput.value);
+                const rawAmount = amountInput.value.replace(/,/g, '');
+                const amount = parseFloat(rawAmount);
+
                 if (isNaN(amount) || amount <= 0) {
                     resultInput.value = '请输入有效金额';
                     return;
                 }
 
                 const selectedConversion = conversionSelect.value;
-                const rate = exchangeRates[selectedConversion];
+                const { rate, toSymbol } = exchangeRates[selectedConversion];
 
                 if (rate) {
                     const result = amount * rate;
-                    resultInput.value = result.toFixed(2);
+                    resultInput.value = `${formatNumber(result.toFixed(2))}`;
                 } else {
                     resultInput.value = '转换失败';
                 }
@@ -226,18 +242,18 @@
             numpadButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const value = button.dataset.value;
-                    let currentAmount = amountInput.value;
+                    let currentAmount = amountInput.value.replace(/,/g, '');
                     
                     if (value === 'clear') {
                         amountInput.value = '';
                     } else if (value === 'backspace') {
                         amountInput.value = currentAmount.slice(0, -1);
                     } else {
-                        if (currentAmount === '0' && value !== '.') {
-                            amountInput.value = value;
-                        } else {
-                            amountInput.value += value;
+                        // Prevent leading zeros
+                        if (currentAmount === '' && value === '0') {
+                            return;
                         }
+                        amountInput.value = formatNumber(currentAmount + value);
                     }
                     
                     if (amountInput.value === '') {
@@ -248,10 +264,14 @@
                 });
             });
 
-            // Event listener for dropdown change
-            conversionSelect.addEventListener('change', convert);
+            // Event listeners
+            conversionSelect.addEventListener('change', () => {
+                updateLabels();
+                convert();
+            });
 
             // Initial state
+            updateLabels();
             amountInput.value = '';
         });
     </script>
