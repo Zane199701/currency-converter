@@ -433,7 +433,8 @@
 
             // --- Event Listeners ---
             numpad.addEventListener('click', function(e) {
-                if (e.target.matches('.numpad-btn')) {
+                // ✅ FIX: Only process clicks on number buttons, excluding the clear button.
+                if (e.target.matches('.numpad-btn') && !e.target.matches('.clear-btn')) {
                     const value = e.target.dataset.value;
 
                     // 检查长度限制，如果已达到最大长度，则不响应
@@ -462,7 +463,15 @@
             clearBtn.addEventListener('click', function() {
                 currentAmount = '0';
                 amountDisplay.textContent = '0';
-                resultDisplay.textContent = '0.00';
+                // When clearing, ensure the result display is also reset according to the currency format
+                const toCurrency = conversionSelect.value.split('-')[1];
+                if (toCurrency === 'VND') {
+                    resultDisplay.textContent = '0';
+                } else {
+                    resultDisplay.textContent = '0.00';
+                }
+                // Call updateDisplay to ensure consistency, especially after label changes etc.
+                updateDisplay(); 
             });
 
             backspaceBtn.addEventListener('click', function() {
