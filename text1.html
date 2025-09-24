@@ -1,278 +1,372 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>123</title>
+    <title>货币转换器</title>
     <style>
-        /* General Styles and Mobile-First Layout */
+        /* --- Google Font --- */
+        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap');
+
+        /* --- Global Styles & Variables --- */
         :root {
-            --bg-color: #f5f7fa;
-            --container-bg: #ffffff;
-            --text-primary: #1a1a1a;
-            --text-secondary: #6b7280;
-            --border-color: #e2e8f0;
-            --focus-color: #4c6ef5;
-            --button-bg: #ffffff;
-            --button-hover: #f0f4f8;
-            --button-active: #e2e8f0;
+            --primary-color: #4285F4; /* Google Blue */
+            --background-color: #f0f2f5;
+            --container-bg-color: #ffffff;
+            --text-color: #3c4043;
+            --light-text-color: #80868b;
+            --border-color: #dadce0;
+            --hover-color: #f1f3f4;
+            --active-color: #e8eaed;
+            --result-color: #1a73e8;
+            --shadow-color: rgba(60, 64, 67, 0.15);
+            --font-family: 'Google Sans', 'Roboto', sans-serif;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            font-family: var(--font-family);
+            background-color: var(--background-color);
+            color: var(--text-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            margin: 0;
-            padding: 1rem;
             box-sizing: border-box;
         }
 
+        /* --- Main Container --- */
         .converter-container {
-            background-color: var(--container-bg);
-            padding: 2rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 420px;
+            max-width: 380px;
+            background-color: var(--container-bg-color);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+            padding: 24px;
             box-sizing: border-box;
-        }
-
-        h1 {
-            text-align: center;
-            color: var(--text-primary);
-            margin-bottom: 2rem;
-            font-size: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
         
-        /* Section and Input Styles */
-        .section {
-            margin-bottom: 1.5rem;
-        }
-
-        .section p {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        .select-wrapper {
+        /* --- Header: Dropdown --- */
+        .conversion-direction {
             position: relative;
         }
 
-        #conversion-select {
+        .converter-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: transparent;
+            font-size: 16px;
+            font-family: var(--font-family);
+            color: var(--text-color);
+            cursor: pointer;
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            background-color: var(--container-bg);
-            cursor: pointer;
-            font-size: 1rem;
-            color: var(--text-primary);
-            transition: border-color 0.3s, box-shadow 0.3s;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
-
-        #conversion-select:hover {
-            border-color: #a0aec0;
+        .converter-select:hover {
+            border-color: #9aa0a6;
         }
-
-        #conversion-select:focus {
+        .converter-select:focus {
             outline: none;
-            border-color: var(--focus-color);
-            box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
         }
 
-        #amount, #result {
-            width: 100%;
-            padding: 1rem;
+        /* --- Amount Input Area --- */
+        .amount-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .amount-input-wrapper {
+            flex-grow: 1;
+            position: relative;
+            background-color: var(--hover-color);
+            border-radius: 8px;
+            padding: 8px 16px;
+        }
+
+        .amount-label {
+            font-size: 12px;
+            color: var(--light-text-color);
+            display: block;
+        }
+
+        .amount-display {
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--text-color);
+            height: 36px;
+            line-height: 36px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .backspace-btn {
+            width: 48px;
+            height: 48px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1.5rem;
-            color: var(--text-primary);
-            text-align: right;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: transparent;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        .backspace-btn:hover {
+            background-color: var(--hover-color);
+        }
+        .backspace-btn:active {
+            background-color: var(--active-color);
+        }
+        .backspace-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--text-color);
         }
 
-        #result {
-            background-color: var(--bg-color);
-            color: var(--text-secondary);
-            cursor: default;
+        /* --- Result Display --- */
+        .result-section {
+            background-color: #e8f0fe; /* Light Blue Background */
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        
-        /* Number Pad Styles */
-        .numpad-container {
+
+        .result-label {
+            font-size: 14px;
+            color: var(--result-color);
+            font-weight: 500;
+        }
+
+        .result-display {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--result-color);
+            word-break: break-all;
+        }
+
+        /* --- Numpad --- */
+        .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 12px;
-            margin-top: 1.5rem;
         }
 
-        .numpad-button {
-            background-color: var(--button-bg);
-            border: 1px solid var(--border-color);
+        .numpad-btn {
+            height: 64px;
+            font-size: 22px;
+            font-weight: 500;
+            font-family: var(--font-family);
+            color: var(--text-color);
+            background-color: var(--hover-color);
+            border: none;
             border-radius: 12px;
-            padding: 1.5rem;
-            font-size: 1.8rem;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
-            text-align: center;
-            user-select: none;
+            transition: background-color 0.2s ease, transform 0.1s ease;
         }
 
-        .numpad-button:hover {
-            background-color: var(--button-hover);
+        .numpad-btn:hover {
+            background-color: #e0e2e6;
+        }
+        .numpad-btn:active {
+            transform: scale(0.95);
+            background-color: var(--active-color);
         }
 
-        .numpad-button:active {
-            background-color: var(--button-active);
-            transform: scale(0.98);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        .clear-btn {
+            background-color: #fce8e6; /* Light Red */
+            color: #d93025; /* Red */
+        }
+        .clear-btn:hover {
+            background-color: #f9ddda;
+        }
+         .clear-btn:active {
+            background-color: #f6d2cf;
         }
 
-        #clear-button, #backspace-button {
-            font-size: 1rem;
-            font-weight: bold;
+        .clear-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: #d93025;
         }
     </style>
 </head>
 <body>
 
     <div class="converter-container">
-        <h1>货币换算</h1>
         
-        <div class="section">
-            <p>转换方向</p>
-            <div class="select-wrapper">
-                <select id="conversion-select">
-                    <option value="VND-USD">越南盾-美元</option>
-                    <option value="VND-CNY">越南盾-人民币</option>
-                    <option value="CNY-VND">人民币-越南盾</option>
-                    <option value="CNY-USD">人民币-美元</option>
-                    <option value="USD-VND">美元-越南盾</option>
-                    <option value="USD-CNY">美元-人民币</option>
-                </select>
+        <div class="conversion-direction">
+            <select id="conversion-select" class="converter-select">
+                <option value="VND-USD">越南盾 - 美元</option>
+                <option value="VND-CNY">越南盾 - 人民币</option>
+                <option value="CNY-VND">人民币 - 越南盾</option>
+                <option value="CNY-USD">人民币 - 美元</option>
+                <option value="USD-VND">美元 - 越南盾</option>
+                <option value="USD-CNY">美元 - 人民币</option>
+            </select>
+        </div>
+        
+        <div class="amount-section">
+            <div class="amount-input-wrapper">
+                <label id="amount-label" class="amount-label" for="amount-display">金额 (越南盾)</label>
+                <div id="amount-display" class="amount-display">0</div>
             </div>
+            <button class="backspace-btn" id="backspace-btn" aria-label="退格">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="68.5" viewBox="0 0 24 68.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+                    <line x1="18" y1="9" x2="12" y2="15"></line>
+                    <line x1="12" y1="9" x2="18" y2="15"></line>
+                </svg>
+            </button>
         </div>
 
-        <div class="section">
-            <p id="amount-label">金额</p>
-            <input type="text" id="amount" placeholder="0" readonly>
+        <div class="result-section">
+            <span id="result-label" class="result-label">转换结果 (美元)</span>
+            <div id="result-display" class="result-display">0.00</div>
         </div>
 
-        <div class="section">
-            <p id="result-label">转换结果</p>
-            <input type="text" id="result" placeholder="等待转换..." readonly>
-        </div>
-
-        <div class="numpad-container">
-            <div class="numpad-button" data-value="7">7</div>
-            <div class="numpad-button" data-value="8">8</div>
-            <div class="numpad-button" data-value="9">9</div>
-            <div class="numpad-button" data-value="4">4</div>
-            <div class="numpad-button" data-value="5">5</div>
-            <div class="numpad-button" data-value="6">6</div>
-            <div class="numpad-button" data-value="1">1</div>
-            <div class="numpad-button" data-value="2">2</div>
-            <div class="numpad-button" data-value="3">3</div>
-            <div class="numpad-button" id="clear-button" data-value="clear">清空</div>
-            <div class="numpad-button" id="zero-button" data-value="0">0</div>
-            <div class="numpad-button" id="backspace-button" data-value="backspace">退格</div>
+        <div class="numpad">
+            <button class="numpad-btn" data-value="7">7</button>
+            <button class="numpad-btn" data-value="8">8</button>
+            <button class="numpad-btn" data-value="9">9</button>
+            <button class="numpad-btn" data-value="4">4</button>
+            <button class="numpad-btn" data-value="5">5</button>
+            <button class="numpad-btn" data-value="6">6</button>
+            <button class="numpad-btn" data-value="1">1</button>
+            <button class="numpad-btn" data-value="2">2</button>
+            <button class="numpad-btn" data-value="3">3</button>
+            <button class="numpad-btn" data-value="000">000</button>
+            <button class="numpad-btn" data-value="0">0</button>
+            <button class="numpad-btn clear-btn" id="clear-btn" aria-label="清空">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2.5l19 19M21.5 2.5l-19 19"/></svg>
+            </button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const amountInput = document.getElementById('amount');
-            const resultInput = document.getElementById('result');
+        document.addEventListener('DOMContentLoaded', function() {
+            const amountDisplay = document.getElementById('amount-display');
+            const resultDisplay = document.getElementById('result-display');
+            const numpad = document.querySelector('.numpad');
+            const backspaceBtn = document.getElementById('backspace-btn');
+            const clearBtn = document.getElementById('clear-btn');
             const conversionSelect = document.getElementById('conversion-select');
-            const numpadButtons = document.querySelectorAll('.numpad-button');
             const amountLabel = document.getElementById('amount-label');
             const resultLabel = document.getElementById('result-label');
 
+            let currentAmount = '0';
+            
+            // 虚拟汇率，用于演示
             const exchangeRates = {
-                'VND-USD': { rate: 0.000041, fromSymbol: '₫', toSymbol: '$' },
-                'VND-CNY': { rate: 0.00029, fromSymbol: '₫', toSymbol: '¥' },
-                'CNY-VND': { rate: 3450, fromSymbol: '¥', toSymbol: '₫' },
-                'CNY-USD': { rate: 0.14, fromSymbol: '¥', toSymbol: '$' },
-                'USD-VND': { rate: 24500, fromSymbol: '$', toSymbol: '₫' },
-                'USD-CNY': { rate: 7.15, fromSymbol: '$', toSymbol: '¥' }
+                'VND-USD': 0.000039,
+                'VND-CNY': 0.00028,
+                'CNY-VND': 3560.5,
+                'CNY-USD': 0.138,
+                'USD-VND': 25450.0,
+                'USD-CNY': 7.25,
             };
 
-            function formatNumber(num) {
-                if (num === '') return '';
-                // Add commas for thousands separator
-                return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            const currencyNames = {
+                'VND': '越南盾',
+                'USD': '美元',
+                'CNY': '人民币'
+            };
+
+            function formatNumber(numStr) {
+                if (numStr === '0') return '0';
+                const [integerPart, decimalPart] = numStr.split('.');
+                const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                return decimalPart ? `${formattedIntegerPart}.${decimalPart}` : formattedIntegerPart;
+            }
+
+            function updateDisplay() {
+                amountDisplay.textContent = formatNumber(currentAmount);
+                calculateResult();
             }
 
             function updateLabels() {
-                const selectedConversion = conversionSelect.value;
-                const { fromSymbol, toSymbol } = exchangeRates[selectedConversion];
-                amountLabel.textContent = `金额 (${fromSymbol})`;
-                resultLabel.textContent = `转换结果 (${toSymbol})`;
+                const selectedValue = conversionSelect.value;
+                const [from, to] = selectedValue.split('-');
+                amountLabel.textContent = `金额 (${currencyNames[from]})`;
+                resultLabel.textContent = `转换结果 (${currencyNames[to]})`;
             }
 
-            function convert() {
-                const rawAmount = amountInput.value.replace(/,/g, '');
-                const amount = parseFloat(rawAmount);
+            function calculateResult() {
+                const rate = exchangeRates[conversionSelect.value];
+                const amount = parseFloat(currentAmount.replace(/,/g, '')) || 0;
+                let result = (amount * rate);
 
-                if (isNaN(amount) || amount <= 0) {
-                    resultInput.value = '请输入有效金额';
-                    return;
-                }
-
-                const selectedConversion = conversionSelect.value;
-                const { rate, toSymbol } = exchangeRates[selectedConversion];
-
-                if (rate) {
-                    const result = amount * rate;
-                    resultInput.value = `${formatNumber(result.toFixed(2))}`;
+                // 根据目标货币确定小数点位数
+                const toCurrency = conversionSelect.value.split('-')[1];
+                let decimalPlaces;
+                if (toCurrency === 'VND') {
+                    decimalPlaces = 0; // 越南盾通常不带小数
                 } else {
-                    resultInput.value = '转换失败';
+                    decimalPlaces = 2; // 美元和人民币保留两位小数
                 }
+
+                result = result.toFixed(decimalPlaces);
+                resultDisplay.textContent = formatNumber(result.toString());
             }
-            
-            // Handle number pad clicks
-            numpadButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const value = button.dataset.value;
-                    let currentAmount = amountInput.value.replace(/,/g, '');
-                    
+
+            numpad.addEventListener('click', function(e) {
+                if (e.target.matches('.numpad-btn')) {
+                    const value = e.target.dataset.value;
+
+                    if (!value) return; // If clicking the icon inside the clear button
+
                     if (value === 'clear') {
-                        amountInput.value = '';
-                    } else if (value === 'backspace') {
-                        amountInput.value = currentAmount.slice(0, -1);
-                    } else {
-                        // Prevent leading zeros
-                        if (currentAmount === '' && value === '0') {
-                            return;
+                        currentAmount = '0';
+                    } else if (currentAmount === '0' && value !== '000') {
+                        currentAmount = value;
+                    } else if (currentAmount !== '0') {
+                         if (currentAmount.length < 15) { // 限制最大长度
+                            currentAmount += value;
                         }
-                        amountInput.value = formatNumber(currentAmount + value);
                     }
-                    
-                    if (amountInput.value === '') {
-                        resultInput.value = '等待转换...';
-                    } else {
-                        convert();
-                    }
-                });
+                    updateDisplay();
+                }
+            });
+            
+            clearBtn.addEventListener('click', function() {
+                currentAmount = '0';
+                updateDisplay();
             });
 
-            // Event listeners
-            conversionSelect.addEventListener('change', () => {
+            backspaceBtn.addEventListener('click', function() {
+                if (currentAmount.length > 1) {
+                    currentAmount = currentAmount.slice(0, -1);
+                } else {
+                    currentAmount = '0';
+                }
+                updateDisplay();
+            });
+
+            conversionSelect.addEventListener('change', function() {
                 updateLabels();
-                convert();
+                calculateResult();
             });
 
-            // Initial state
+            // Initial setup
             updateLabels();
-            amountInput.value = '';
+            updateDisplay();
         });
     </script>
 </body>
