@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>货币转换器</title>
     <style>
         /* --- Google Font --- */
@@ -23,6 +23,12 @@
             --font-family: 'Google Sans', 'Roboto', sans-serif;
         }
 
+        /* 新增: 禁用页面滑动 */
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
         body {
             margin: 0;
             padding: 20px;
@@ -34,6 +40,10 @@
             align-items: center;
             min-height: 100vh;
             box-sizing: border-box;
+            /* 新增: 禁用页面滑动和触摸手势 */
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
         }
 
         /* --- Main Container --- */
@@ -367,6 +377,15 @@
             // Initial setup
             updateLabels();
             updateDisplay();
+
+            // 新增: 阻止触摸移动和双击事件的默认行为，增强禁用效果
+            document.addEventListener('touchmove', function (e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            document.addEventListener('dblclick', function (e) {
+                e.preventDefault();
+            }, { passive: false });
         });
     </script>
 </body>
