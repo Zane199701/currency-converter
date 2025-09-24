@@ -51,13 +51,13 @@
             background-color: var(--container-bg-color);
             border-radius: 16px;
             box-shadow: 0 4px 20px var(--shadow-color);
-            padding: 16px; /* 调整内边距 */
+            padding: 16px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 16px; /* 调整元素间距 */
-            max-height: 80vh; /* 限制为全屏高度的 4/5 */
-            justify-content: space-between; /* 使内容在垂直方向上均匀分布 */
+            gap: 16px;
+            max-height: 80vh;
+            justify-content: space-between;
         }
         
         /* --- Header: Dropdown --- */
@@ -176,7 +176,7 @@
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px; /* 调整数字键盘间距 */
+            gap: 8px;
         }
 
         .numpad-btn {
@@ -221,7 +221,7 @@
         .about-btn-wrapper {
             display: flex;
             justify-content: center;
-            margin-top: 0; /* 移除顶部外边距 */
+            margin-top: 0;
         }
 
         .about-btn {
@@ -295,7 +295,6 @@
         .back-btn:active {
             background-color: var(--active-color);
         }
-
     </style>
 </head>
 <body>
@@ -380,7 +379,6 @@
 
             let currentAmount = '0';
             
-            // 更新后的虚拟汇率
             const exchangeRates = {
                 'VND-USD': 0.000039,
                 'VND-CNY': 0.00028,
@@ -436,12 +434,22 @@
             numpad.addEventListener('click', function(e) {
                 if (e.target.matches('.numpad-btn')) {
                     const value = e.target.dataset.value;
+                    const maxLength = 15;
 
-                    if (currentAmount === '0' && value !== '000') {
-                        currentAmount = value;
-                    } else if (currentAmount !== '0' && currentAmount.length < 15) {
-                        currentAmount += value;
+                    // 修复后的逻辑
+                    if (currentAmount === '0') {
+                        // 如果当前为0，且输入不是'0'或'000'，则替换
+                        if (value !== '0' && value !== '000') {
+                            currentAmount = value;
+                        }
+                        // 如果输入为'0'或'000'，则保持为'0'，不做任何操作
+                    } else {
+                        // 如果当前不为0，且未达到最大长度，则追加
+                        if (currentAmount.length < maxLength) {
+                            currentAmount += value;
+                        }
                     }
+
                     updateDisplay();
                 }
             });
