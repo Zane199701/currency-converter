@@ -36,7 +36,7 @@
             color: var(--text-color);
             display: flex;
             justify-content: center;
-            align-items: center; /* 居中对齐 */
+            align-items: flex-start; /* 顶部对齐 */
             height: 100vh;
             box-sizing: border-box;
             touch-action: none;
@@ -376,6 +376,7 @@
             const resultLabel = document.getElementById('result-label');
 
             let currentAmount = '0';
+            const MAX_LENGTH = 11;
             
             // 虚拟汇率，使用精确的数学表达式
             const exchangeRates = {
@@ -394,7 +395,7 @@
             };
 
             function formatNumber(numStr) {
-                if (numStr === '0') return '0';
+                if (numStr === '0' || numStr === '') return '0';
                 const [integerPart, decimalPart] = numStr.split('.');
                 const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                 return decimalPart ? `${formattedIntegerPart}.${decimalPart}` : formattedIntegerPart;
@@ -434,18 +435,23 @@
             numpad.addEventListener('click', function(e) {
                 if (e.target.matches('.numpad-btn')) {
                     const value = e.target.dataset.value;
-                    const maxLength = 15;
+
+                    // 检查长度限制，如果已达到最大长度，则不响应
+                    if (currentAmount.length >= MAX_LENGTH && currentAmount !== '0') {
+                        return;
+                    }
                     
                     if (currentAmount === '0') {
-                        // 如果当前金额为0，则任何非0数字都直接替换它
+                        // 如果当前金额为0，任何非'0'和'000'的输入都替换它
                         if (value !== '0' && value !== '000') {
                             currentAmount = value;
+                        } else if (value === '000') {
+                            currentAmount = '0'; // 保持为0
                         } else {
-                            // 如果按了0或000，保持为0
                             currentAmount = '0';
                         }
-                    } else if (currentAmount.length < maxLength) {
-                        // 如果当前金额不为0，则追加新数字
+                    } else {
+                        // 正常追加模式
                         currentAmount += value;
                     }
 
